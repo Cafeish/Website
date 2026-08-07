@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Cafeish</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .admin-tabs { display:flex; gap:8px; margin-bottom:40px; flex-wrap:wrap; }
+  .admin-tab { background:transparent; border:1px solid var(--border); color:var(--muted); padding:10px 20px; border-radius:999px; cursor:pointer; font-size:14px; font-family:inherit; }
+  .admin-tab.active { border-color:var(--gold); color:var(--gold); }
+  .admin-panel { display:none; }
+  .admin-panel.active { display:block; }
+  .swatch-row { display:flex; align-items:center; gap:14px; margin-bottom:18px; }
+  .swatch-row input[type="color"] { width:48px; height:38px; border:1px solid var(--border); border-radius:4px; background:none; padding:2px; cursor:pointer; }
+  .swatch-row label { margin:0; flex:0 0 140px; }
+  input[type="file"] { background:var(--surface); border:1px solid var(--border); color:var(--muted); padding:12px; border-radius:var(--radius); width:100%; font-size:13px; }
+  .thumb-preview { width:100%; height:140px; border-radius:4px; background:var(--nav); margin-top:10px; display:flex; align-items:center; justify-content:center; overflow:hidden; color:var(--muted); font-size:12px; }
+  .thumb-preview img { width:100%; height:100%; object-fit:cover; }
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="index.html" class="logo-mark"><span class="logo-fallback">cafeish<span class="dot">.</span></span></a>
+    <ul class="nav-links">
+      <li><a href="index.html" data-page="index.html">Story</a></li>
+      <li><a href="menu.html" data-page="menu.html">Menu</a></li>
+      <li><a href="about.html" data-page="about.html">About</a></li>
+      <li><a href="journal.html" data-page="journal.html">Journal</a></li>
+      <li><a href="waitlist.html" class="pill-btn">Get early access →</a></li>
+    </ul>
+    <button class="nav-toggle" aria-label="Toggle menu">☰</button>
+  </div>
+</nav>
+
+<header class="section-tight">
+  <div class="wrap">
+    <p class="eyebrow">Admin</p>
+    <h1 style="font-size:clamp(28px,4vw,40px); margin-top:10px;">Manage Cafeish</h1>
+    <p class="muted" style="margin-top:14px; max-width:640px;" id="admin-intro">
+      This page isn't linked in the nav on purpose — it's a working tool, not a public page.
+    </p>
+  </div>
+</header>
+
+<section style="padding-top:0;" id="admin-gate-section">
+  <div class="wrap" style="max-width:420px;">
+    <div class="card">
+      <p class="eyebrow" style="margin-bottom:16px;">Admin access</p>
+      <form id="admin-gate-form">
+        <div class="form-row">
+          <label for="admin-pw">Password</label>
+          <input type="text" id="admin-pw" required placeholder="Enter admin password" autocomplete="off">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Unlock</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0; display:none;" id="admin-content-section">
+  <div class="wrap">
+
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-tab="menu">Menu items</button>
+      <button class="admin-tab" data-tab="team">Team photos</button>
+      <button class="admin-tab" data-tab="theme">Colors &amp; font</button>
+    </div>
+
+    <!-- MENU TAB -->
+    <div class="admin-panel active" id="panel-menu">
+      <div class="grid-2" style="align-items:start;">
+        <div class="card">
+          <p class="eyebrow" style="margin-bottom:20px;">New menu item</p>
+          <form id="item-form">
+            <div class="form-row">
+              <label for="i-name">Name</label>
+              <input type="text" id="i-name" required placeholder="e.g. Mango Lassi">
+            </div>
+            <div class="form-row">
+              <label for="i-category">Category</label>
+              <select id="i-category">
+                <option>Drinks</option><option>Bakes</option><option>Food</option><option>Cakes</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label for="i-price">Price (USD)</label>
+              <input type="text" id="i-price" required placeholder="e.g. 5.50">
+            </div>
+            <div class="form-row">
+              <label for="i-desc">Description</label>
+              <textarea id="i-desc" rows="3" placeholder="Short description shown on the menu card"></textarea>
+            </div>
+            <div class="form-row">
+              <label for="i-img">Photo</label>
+              <input type="file" id="i-img" accept="image/*">
+              <div class="thumb-preview" id="i-img-preview">No photo selected</div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Add to menu</button>
+          </form>
+        </div>
+        <div>
+          <p class="eyebrow" style="margin-bottom:20px;">Current items</p>
+          <div id="custom-items-list" style="display:flex; flex-direction:column; gap:14px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEAM TAB -->
+    <div class="admin-panel" id="panel-team">
+      <div class="grid-2" style="align-items:start;">
+        <div class="card">
+          <p class="eyebrow" style="margin-bottom:20px;">Add team member</p>
+          <form id="team-form">
+            <div class="form-row">
+              <label for="t-name">Name</label>
+              <input type="text" id="t-name" required placeholder="Name">
+            </div>
+            <div class="form-row">
+              <label for="t-role">Role</label>
+              <input type="text" id="t-role" required placeholder="e.g. Head Baker">
+            </div>
+            <div class="form-row">
+              <label for="t-bio">One-line bio</label>
+              <input type="text" id="t-bio" required placeholder="Something personality-forward">
+            </div>
+            <div class="form-row">
+              <label for="t-img">Photo</label>
+              <input type="file" id="t-img" accept="image/*">
+              <div class="thumb-preview" id="t-img-preview">No photo selected</div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Add team member</button>
+          </form>
+        </div>
+        <div>
+          <p class="eyebrow" style="margin-bottom:20px;">Current team</p>
+          <div id="custom-team-list" style="display:flex; flex-direction:column; gap:14px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THEME TAB -->
+    <div class="admin-panel" id="panel-theme">
+      <div class="grid-2" style="align-items:start;">
+        <div class="card">
+          <p class="eyebrow" style="margin-bottom:20px;">Colors</p>
+          <div class="swatch-row"><label>Background</label><input type="color" id="th-bg"><span class="muted" id="th-bg-val" style="font-size:13px;"></span></div>
+          <div class="swatch-row"><label>Cards / surface</label><input type="color" id="th-surface"><span class="muted" id="th-surface-val" style="font-size:13px;"></span></div>
+          <div class="swatch-row"><label>Nav / deep bg</label><input type="color" id="th-nav"><span class="muted" id="th-nav-val" style="font-size:13px;"></span></div>
+          <div class="swatch-row"><label>Text</label><input type="color" id="th-text"><span class="muted" id="th-text-val" style="font-size:13px;"></span></div>
+          <div class="swatch-row"><label>Muted text</label><input type="color" id="th-muted"><span class="muted" id="th-muted-val" style="font-size:13px;"></span></div>
+          <div class="swatch-row"><label>Accent (gold)</label><input type="color" id="th-gold"><span class="muted" id="th-gold-val" style="font-size:13px;"></span></div>
+
+          <div class="form-row" style="margin-top:24px;">
+            <label for="th-font">Font</label>
+            <select id="th-font"></select>
+          </div>
+
+          <div style="display:flex; gap:12px; margin-top:24px;">
+            <button id="theme-save" class="btn btn-primary">Save &amp; apply</button>
+            <button id="theme-reset" class="btn btn-outline">Reset to Aisha's original palette</button>
+          </div>
+          <p class="muted" style="font-size:13px; margin-top:14px;">Changes apply live across every page as soon as you save.</p>
+        </div>
+
+        <div class="card">
+          <p class="eyebrow" style="margin-bottom:16px;">Live preview</p>
+          <div style="border:1px solid var(--border); border-radius:6px; overflow:hidden;">
+            <div style="background:var(--nav); padding:16px 20px; font-family:var(--font-family);">cafeish<span style="color:var(--gold);">.</span></div>
+            <div style="background:var(--bg); padding:24px 20px;">
+              <p style="font-family:var(--font-family); color:var(--text); font-size:20px; margin-bottom:10px;">The flavors St. Louis didn't know it was missing.</p>
+              <p style="font-family:var(--font-family); color:var(--muted); font-size:14px; margin-bottom:16px;">Pop-ups and catering across St. Louis.</p>
+              <div style="background:var(--surface); border-radius:6px; padding:16px; display:inline-block;">
+                <p style="font-family:var(--font-family); color:var(--gold); font-size:12px; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px;">Drinks</p>
+                <p style="font-family:var(--font-family); color:var(--text);">Karak Chai</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="wrap" style="margin-top:64px;">
+    <div class="card" style="max-width:760px;">
+      <p class="eyebrow" style="margin-bottom:14px;">Going from "works for me" to "works for everyone"</p>
+      <p class="eyebrow" style="margin-bottom:14px;">How this saves data</p>
+      <p class="muted" style="font-size:14px; margin-bottom:10px;">
+        Menu items, team photos, reviews, and colors/font you set here save to <strong>this browser</strong>.
+        Come back later on the same computer/browser and they're still here. A different visitor, or you on
+        a different device, won't see them — this keeps the site free and simple with zero setup.
+      </p>
+      <p class="muted" style="font-size:14px;">
+        If you outgrow this later and want changes visible to every visitor everywhere (e.g. once you have
+        a team member updating the menu from their own laptop), that's a "connect a database" upgrade —
+        it's a well-defined next step, just not needed to launch.
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <hr class="rule">
+    <p class="footer-bottom" style="margin-top:24px;">© 2026 Cafeish. St. Louis, MO.</p>
+  </div>
+</footer>
+
+<script src="js/site-config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+  // ---- Password gate ----
+  document.getElementById('admin-gate-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const pw = document.getElementById('admin-pw').value;
+    if (unlockAdmin(pw)) {
+      document.getElementById('admin-gate-section').style.display = 'none';
+      document.getElementById('admin-content-section').style.display = '';
+      document.getElementById('admin-intro').textContent = "Menu items, team photos, and site colors/font managed here save to this browser (see the note at the bottom of this page).";
+      init();
+    } else {
+      showToast('Wrong password.');
+    }
+  });
+
+  if (isAdminUnlocked()) {
+    document.getElementById('admin-gate-section').style.display = 'none';
+    document.getElementById('admin-content-section').style.display = '';
+    init();
+  }
+
+
+  // ---- Tabs ----
+  document.querySelectorAll('.admin-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ---- File preview helper ----
+  function wireFilePreview(inputId, previewId) {
+    document.getElementById(inputId).addEventListener('change', function () {
+      const preview = document.getElementById(previewId);
+      const file = this.files[0];
+      if (!file) { preview.innerHTML = 'No photo selected'; return; }
+      const reader = new FileReader();
+      reader.onload = () => { preview.innerHTML = `<img src="${reader.result}" alt="preview">`; };
+      reader.readAsDataURL(file);
+    });
+  }
+  wireFilePreview('i-img', 'i-img-preview');
+  wireFilePreview('t-img', 't-img-preview');
+
+  // ---- Menu items ----
+  async function renderCustomList() {
+    const wrap = document.getElementById('custom-items-list');
+    wrap.innerHTML = `<div class="card"><p class="muted">Loading...</p></div>`;
+    const custom = getCustomMenuItems();
+    if (!custom.length) { wrap.innerHTML = `<div class="card"><p class="muted">Nothing added yet.</p></div>`; return; }
+    wrap.innerHTML = custom.map(it => `
+      <div class="card" style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+        <div style="display:flex; gap:12px; align-items:center;">
+          ${it.img ? `<img src="${it.img}" style="width:48px;height:48px;object-fit:cover;border-radius:4px;">` : ''}
+          <div>
+            <p style="font-weight:700;">${it.name} <span class="muted" style="font-weight:400;">— ${it.category}</span></p>
+            <p class="muted" style="font-size:13px;">$${Number(it.price).toFixed(2)}</p>
+          </div>
+        </div>
+        <button class="btn btn-outline" data-remove="${it.id}">Remove</button>
+      </div>
+    `).join('');
+    wrap.querySelectorAll('[data-remove]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        deleteCustomMenuItem(btn.dataset.remove);
+        renderCustomList();
+        showToast('Item removed.');
+      });
+    });
+  }
+
+  // ---- Team ----
+  async function renderTeamList() {
+    const wrap = document.getElementById('custom-team-list');
+    wrap.innerHTML = `<div class="card"><p class="muted">Loading...</p></div>`;
+    const custom = getCustomTeamMembers();
+    if (!custom.length) { wrap.innerHTML = `<div class="card"><p class="muted">Nothing added yet.</p></div>`; return; }
+    wrap.innerHTML = custom.map(m => `
+      <div class="card" style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+        <div style="display:flex; gap:12px; align-items:center;">
+          ${m.img ? `<img src="${m.img}" style="width:48px;height:48px;object-fit:cover;border-radius:4px;">` : ''}
+          <div>
+            <p style="font-weight:700;">${m.name}</p>
+            <p class="muted" style="font-size:13px;">${m.role}</p>
+          </div>
+        </div>
+        <button class="btn btn-outline" data-remove="${m.id}">Remove</button>
+      </div>
+    `).join('');
+    wrap.querySelectorAll('[data-remove]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        deleteTeamMember(btn.dataset.remove);
+        renderTeamList();
+        showToast('Team member removed.');
+      });
+    });
+  }
+
+  // ---- Theme ----
+  const themeFields = ['bg', 'surface', 'nav', 'text', 'muted', 'gold'];
+
+  function populateFontOptions(selected) {
+    const sel = document.getElementById('th-font');
+    sel.innerHTML = FONT_OPTIONS.map(f => `<option value="${f.name}" ${f.name === selected ? 'selected' : ''}>${f.name}</option>`).join('');
+  }
+
+  function setThemeFormValues(theme) {
+    themeFields.forEach(k => {
+      document.getElementById('th-' + k).value = theme[k];
+      document.getElementById('th-' + k + '-val').textContent = theme[k];
+    });
+    populateFontOptions(theme.font);
+    applyTheme(theme); // live preview uses the same CSS vars as the real site
+  }
+
+  themeFields.forEach(k => {
+    document.getElementById('th-' + k).addEventListener('input', function () {
+      document.getElementById('th-' + k + '-val').textContent = this.value;
+      applyTheme(currentThemeFormValues());
+    });
+  });
+  document.getElementById('th-font').addEventListener('change', function () {
+    applyTheme(currentThemeFormValues());
+  });
+
+  function currentThemeFormValues() {
+    const t = {};
+    themeFields.forEach(k => t[k] = document.getElementById('th-' + k).value);
+    t.font = document.getElementById('th-font').value;
+    return t;
+  }
+
+  document.getElementById('theme-save').addEventListener('click', async () => {
+    const t = currentThemeFormValues();
+    saveTheme(t);
+    showToast('Theme saved — live on every page now.');
+  });
+
+  document.getElementById('theme-reset').addEventListener('click', async () => {
+    setThemeFormValues(DEFAULT_THEME);
+    saveTheme(DEFAULT_THEME);
+    showToast("Reset to Aisha's original palette.");
+  });
+
+  // ---- Init ----
+  function init() {
+    document.getElementById('item-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const price = parseFloat(document.getElementById('i-price').value);
+      if (isNaN(price)) { showToast('Enter a valid price.'); return; }
+      const file = document.getElementById('i-img').files[0];
+      showToast(file ? 'Uploading photo...' : 'Saving...');
+      const imgUrl = await uploadImage(file);
+      addMenuItem({
+        name: document.getElementById('i-name').value,
+        category: document.getElementById('i-category').value,
+        price: price,
+        desc: document.getElementById('i-desc').value,
+        img: imgUrl
+      });
+      showToast('Item added — check the Menu page.');
+      this.reset();
+      document.getElementById('i-img-preview').innerHTML = 'No photo selected';
+      renderCustomList();
+    });
+
+    document.getElementById('team-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const file = document.getElementById('t-img').files[0];
+      showToast(file ? 'Uploading photo...' : 'Saving...');
+      const imgUrl = await uploadImage(file);
+      addTeamMember({
+        name: document.getElementById('t-name').value,
+        role: document.getElementById('t-role').value,
+        bio: document.getElementById('t-bio').value,
+        img: imgUrl
+      });
+      showToast('Team member added — check the About page.');
+      this.reset();
+      document.getElementById('t-img-preview').innerHTML = 'No photo selected';
+      renderTeamList();
+    });
+
+    setThemeFormValues(getTheme());
+
+    renderCustomList();
+    renderTeamList();
+  }
+</script>
+</body>
+</html>

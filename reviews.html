@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reviews — Cafeish</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="wrap">
+    <a href="index.html" class="logo-mark"><span class="logo-fallback">cafeish<span class="dot">.</span></span></a>
+    <ul class="nav-links">
+      <li><a href="index.html" data-page="index.html">Story</a></li>
+      <li><a href="menu.html" data-page="menu.html">Menu</a></li>
+      <li><a href="about.html" data-page="about.html">About</a></li>
+      <li><a href="journal.html" data-page="journal.html">Journal</a></li>
+      <li><a href="reviews.html" data-page="reviews.html" class="active">Reviews</a></li>
+      <li><a href="waitlist.html" class="pill-btn">Get early access →</a></li>
+    </ul>
+    <button class="nav-toggle" aria-label="Toggle menu">☰</button>
+  </div>
+</nav>
+
+<header class="section-tight">
+  <div class="wrap">
+    <p class="eyebrow">Reviews</p>
+    <h1 style="font-size:clamp(30px,4.5vw,48px); margin-top:10px;">What people are saying.</h1>
+    <p id="avg-rating-line" class="muted" style="margin-top:14px; font-size:15px;"></p>
+  </div>
+</header>
+
+<section style="padding-top:0;">
+  <div class="wrap grid-2" style="align-items:start;">
+    <div>
+      <div class="card">
+        <p class="eyebrow" style="margin-bottom:18px;">Leave a review</p>
+        <form id="review-form">
+          <div class="form-row">
+            <label for="rv-name">Name</label>
+            <input type="text" id="rv-name" required placeholder="Your name">
+          </div>
+          <div class="form-row">
+            <label for="rv-rating">Rating</label>
+            <select id="rv-rating">
+              <option value="5">★★★★★ (5)</option>
+              <option value="4">★★★★☆ (4)</option>
+              <option value="3">★★★☆☆ (3)</option>
+              <option value="2">★★☆☆☆ (2)</option>
+              <option value="1">★☆☆☆☆ (1)</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="rv-text">Review</label>
+            <textarea id="rv-text" rows="4" required placeholder="What did you try? What did you think?"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Submit review</button>
+        </form>
+      </div>
+      <p class="muted" style="font-size:12px; margin-top:14px;">Reviews are saved on this device for now. Once we have a backend connected, reviews will be visible to everyone who visits the site.</p>
+    </div>
+
+    <div id="reviews-list" style="display:flex; flex-direction:column; gap:18px;"></div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-col"><h4>Cafeish</h4><p>Pop-ups &amp; catering across St. Louis.</p></div>
+      <div class="footer-col"><h4>Explore</h4>
+        <a href="menu.html">Menu</a><a href="about.html">About</a><a href="journal.html">Journal</a><a href="waitlist.html">Early access</a>
+      </div>
+      <div class="footer-col"><h4>Connect</h4>
+        <a href="order.html">Order &amp; contact</a><a href="reviews.html">Reviews</a>
+      </div>
+    </div>
+    <hr class="rule">
+    <p class="footer-bottom" style="margin-top:24px;">© 2026 Cafeish. St. Louis, MO.</p>
+  </div>
+</footer>
+
+<script src="js/site-config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+  async function renderReviews() {
+    const listEl = document.getElementById('reviews-list');
+    listEl.innerHTML = `<div class="card"><p class="muted">Loading reviews...</p></div>`;
+    const reviews = getReviews();
+    const avg = averageRating();
+    document.getElementById('avg-rating-line').innerHTML = reviews.length
+      ? `<span class="stars">${starString(avg)}</span> &nbsp; ${avg} average · ${reviews.length} review${reviews.length === 1 ? '' : 's'}`
+      : 'No reviews yet — be the first.';
+
+    if (!reviews.length) {
+      listEl.innerHTML = `<div class="card"><p class="muted">Nothing here yet.</p></div>`;
+      return;
+    }
+    listEl.innerHTML = reviews.map(r => `
+      <div class="card">
+        <div class="stars" style="margin-bottom:8px;">${starString(r.rating)}</div>
+        <p style="margin-bottom:10px;">${r.text}</p>
+        <p class="muted" style="font-size:13px;">${r.name} · ${new Date(r.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('review-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    addReview({
+      name: document.getElementById('rv-name').value,
+      rating: document.getElementById('rv-rating').value,
+      text: document.getElementById('rv-text').value
+    });
+    showToast('Thanks for the review!');
+    this.reset();
+    renderReviews();
+  });
+
+  renderReviews();
+</script>
+</body>
+</html>

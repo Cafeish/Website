@@ -1,0 +1,212 @@
+/* =========================================================
+   CAFEISH — SHARED SITE LOGIC
+   =========================================================
+   No backend, no accounts, no setup required. Menu items added
+   via /admin.html, reviews, and theme/color changes save to
+   YOUR browser's local storage — meaning they show up again
+   when you come back to the same browser, but a different
+   visitor (or you on a different device) won't see them.
+
+   That's a deliberate tradeoff for zero setup. If you outgrow
+   it later (want changes visible to every visitor everywhere),
+   that's a "connect a database" upgrade — ask and I can wire
+   that back in. For launch, this keeps things simple and free.
+   ========================================================= */
+
+// ---------- NAV ----------
+document.addEventListener('DOMContentLoaded', () => {
+  const toggle = document.querySelector('.nav-toggle');
+  const links = document.querySelector('.nav-links');
+  if (toggle && links) {
+    toggle.addEventListener('click', () => links.classList.toggle('open'));
+  }
+  const path = window.location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.nav-links a[data-page]').forEach(a => {
+    if (a.dataset.page === path) a.classList.add('active');
+  });
+
+  initTheme();
+});
+
+// ---------- TOAST ----------
+function showToast(message) {
+  let toast = document.querySelector('.toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.className = 'toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => toast.classList.remove('show'), 3200);
+}
+
+// ---------- STORAGE HELPERS ----------
+const STORE_KEYS = {
+  menuItems: 'cafeish_menu_items',
+  reviews: 'cafeish_reviews',
+  orders: 'cafeish_orders',
+  waitlist: 'cafeish_waitlist',
+  team: 'cafeish_team',
+  theme: 'cafeish_theme'
+};
+
+function loadJSON(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (e) {
+    return fallback;
+  }
+}
+
+function saveJSON(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* ignore */ }
+}
+
+// ---------- MENU ITEMS ----------
+function getAllMenuItems() {
+  const base = typeof DEFAULT_MENU_ITEMS !== 'undefined' ? DEFAULT_MENU_ITEMS : [];
+  const custom = loadJSON(STORE_KEYS.menuItems, []);
+  return [...base, ...custom];
+}
+
+function getCustomMenuItems() {
+  return loadJSON(STORE_KEYS.menuItems, []);
+}
+
+function addMenuItem(item) {
+  const custom = loadJSON(STORE_KEYS.menuItems, []);
+  custom.push({ ...item, id: 'custom_' + Date.now() });
+  saveJSON(STORE_KEYS.menuItems, custom);
+}
+
+function deleteCustomMenuItem(id) {
+  let custom = loadJSON(STORE_KEYS.menuItems, []);
+  custom = custom.filter(i => i.id !== id);
+  saveJSON(STORE_KEYS.menuItems, custom);
+}
+
+// ---------- REVIEWS ----------
+function getReviews() {
+  return loadJSON(STORE_KEYS.reviews, []);
+}
+
+function addReview(review) {
+  const reviews = getReviews();
+  reviews.unshift({ ...review, id: 'r_' + Date.now(), date: new Date().toISOString() });
+  saveJSON(STORE_KEYS.reviews, reviews);
+}
+
+function averageRating() {
+  const reviews = getReviews();
+  if (!reviews.length) return 0;
+  const sum = reviews.reduce((a, r) => a + Number(r.rating), 0);
+  return (sum / reviews.length).toFixed(1);
+}
+
+function starString(rating) {
+  const r = Math.round(rating);
+  return '★'.repeat(r) + '☆'.repeat(5 - r);
+}
+
+// ---------- ORDERS ----------
+function addOrder(order) {
+  const orders = loadJSON(STORE_KEYS.orders, []);
+  orders.unshift({ ...order, id: 'o_' + Date.now(), date: new Date().toISOString() });
+  saveJSON(STORE_KEYS.orders, orders);
+}
+
+// ---------- WAITLIST ----------
+function addWaitlistSignup(entry) {
+  const list = loadJSON(STORE_KEYS.waitlist, []);
+  list.unshift({ ...entry, id: 'w_' + Date.now(), date: new Date().toISOString() });
+  saveJSON(STORE_KEYS.waitlist, list);
+}
+
+// ---------- TEAM MEMBERS ----------
+function getTeamMembers() {
+  const base = typeof TEAM_MEMBERS !== 'undefined' ? TEAM_MEMBERS : [];
+  const custom = loadJSON(STORE_KEYS.team, []);
+  return custom.length ? custom : base;
+}
+
+function getCustomTeamMembers() {
+  return loadJSON(STORE_KEYS.team, []);
+}
+
+function addTeamMember(member) {
+  const custom = loadJSON(STORE_KEYS.team, []);
+  custom.push({ ...member, id: 'team_' + Date.now() });
+  saveJSON(STORE_KEYS.team, custom);
+}
+
+function deleteTeamMember(id) {
+  let custom = loadJSON(STORE_KEYS.team, []);
+  custom = custom.filter(m => m.id !== id);
+  saveJSON(STORE_KEYS.team, custom);
+}
+
+// ---------- THEME (decorations: colors + font) ----------
+function getTheme() {
+  const saved = loadJSON(STORE_KEYS.theme, null);
+  return { ...DEFAULT_THEME, ...(saved || {}) };
+}
+
+function saveTheme(theme) {
+  saveJSON(STORE_KEYS.theme, theme);
+}
+
+function applyTheme(theme) {
+  const root = document.documentElement.style;
+  root.setProperty('--bg', theme.bg);
+  root.setProperty('--surface', theme.surface);
+  root.setProperty('--nav', theme.nav);
+  root.setProperty('--text', theme.text);
+  root.setProperty('--muted', theme.muted);
+  root.setProperty('--gold', theme.gold);
+
+  const fontDef = (typeof FONT_OPTIONS !== 'undefined' ? FONT_OPTIONS : []).find(f => f.name === theme.font);
+  if (fontDef) {
+    root.setProperty('--font-family', fontDef.stack);
+    if (!document.querySelector(`link[data-font="${fontDef.name}"]`)) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = fontDef.url;
+      link.dataset.font = fontDef.name;
+      document.head.appendChild(link);
+    }
+  }
+}
+
+function initTheme() {
+  applyTheme(getTheme());
+}
+
+// ---------- IMAGE UPLOADS ----------
+// Converts a chosen photo to inline image data stored with the item.
+// Works great for a handful of images. If you add many large photos and
+// notice things slowing down, that's local storage's space limit — ask
+// if you want a proper image host wired in later.
+function uploadImage(file) {
+  return new Promise((resolve, reject) => {
+    if (!file) { resolve(''); return; }
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ---------- ADMIN SESSION GATE ----------
+function isAdminUnlocked() {
+  return sessionStorage.getItem('cafeish_admin_ok') === 'true';
+}
+function unlockAdmin(password) {
+  if (typeof ADMIN_PASSWORD !== 'undefined' && password === ADMIN_PASSWORD) {
+    sessionStorage.setItem('cafeish_admin_ok', 'true');
+    return true;
+  }
+  return false;
+}
