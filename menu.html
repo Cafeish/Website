@@ -10,7 +10,8 @@
 
 <nav class="site-nav">
   <div class="wrap">
-    <a href="index.html" class="logo-mark"><span class="logo-fallback">cafeish<span class="dot">.</span></span></a>
+    <a href="index.html" class="logo-mark"><img class="logo-img" src="" alt="Cafeish" style="display:none; height:34px;">
+      <span class="logo-fallback">cafeish<span class="dot">.</span></span></a>
     <ul class="nav-links">
       <li><a href="index.html" data-page="index.html">Story</a></li>
       <li><a href="menu.html" data-page="menu.html" class="active">Menu</a></li>
@@ -64,27 +65,103 @@
 <script src="js/inline-edit.js"></script>
 <script>
   let currentFilter = 'All';
+  let editModeOn = isEditModeOn();
 
-  async function renderMenu() {
+  function renderMenu() {
     const grid = document.getElementById('menu-grid');
-    grid.innerHTML = `<p class="muted">Loading menu...</p>`;
-    const items = (getAllMenuItems()).filter(i => currentFilter === 'All' || i.category === currentFilter);
-    if (!items.length) {
-      grid.innerHTML = `<p class="muted">No items in this category yet.</p>`;
-      return;
-    }
-    grid.innerHTML = items.map(it => `
-      <div class="card">
-        <div style="height:170px; border-radius:4px; background:var(--nav); margin-bottom:18px; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px;">
-          ${it.img ? `<img src="${it.img}" alt="${it.name}" style="width:100%;height:100%;object-fit:cover;border-radius:4px;">` : 'Photo coming'}
+    const items = getAllMenuItems().filter(i => currentFilter === 'All' || i.category === currentFilter);
+
+    if (editModeOn) {
+      grid.innerHTML = items.map(it => `
+        <div class="card edit-item-card" data-item-id="${it.id}">
+          <button class="edit-remove-btn" data-remove="${it.id}" title="Remove item">✕</button>
+          <div class="menu-item-img" style="height:170px; border-radius:4px; background:var(--nav); margin-bottom:18px; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px; overflow:hidden;">
+            ${it.img ? `<img src="${it.img}" alt="${it.name}" style="width:100%;height:100%;object-fit:cover;">` : '<span>Click to add photo</span>'}
+          </div>
+          <select class="edit-field" data-field="category" style="margin-bottom:8px; width:auto; padding:4px 8px; font-size:12px;">
+            ${['Drinks','Bakes','Food','Cakes'].map(c => `<option ${c === it.category ? 'selected' : ''}>${c}</option>`).join('')}
+          </select>
+          <h3 class="edit-field" data-field="name" contenteditable="true" style="font-size:19px; margin-bottom:8px;">${it.name}</h3>
+          <p class="edit-field muted" data-field="desc" contenteditable="true" style="font-size:14px; margin-bottom:14px;">${it.desc || ''}</p>
+          <p class="edit-field" data-field="price" contenteditable="true" style="color:var(--gold); font-weight:700; display:inline-block;">${Number(it.price).toFixed(2)}</p>
         </div>
-        <p class="eyebrow" style="margin-bottom:6px;">${it.category}</p>
-        <h3 style="font-size:19px; margin-bottom:8px;">${it.name}</h3>
-        <p class="muted" style="font-size:14px; margin-bottom:14px;">${it.desc || ''}</p>
-        <p style="color:var(--gold); font-weight:700;">$${Number(it.price).toFixed(2)}</p>
-      </div>
-    `).join('');
+      `).join('') + `<div class="add-item-card" id="add-menu-item-card">+ Add menu item</div>`;
+
+      grid.querySelectorAll('.edit-item-card').forEach(card => {
+        const id = card.dataset.itemId;
+        card.querySelectorAll('[contenteditable]').forEach(field => {
+          field.addEventListener('blur', () => {
+            const key = field.dataset.field;
+            let value = field.textContent.trim();
+            if (key === 'price') value = parseFloat(value) || 0;
+            updateMenuItem(id, { [key]: value });
+          });
+        });
+        card.querySelector('select[data-field="category"]').addEventListener('change', function () {
+          updateMenuItem(id, { category: this.value });
+        });
+        const imgEl = card.querySelector('.menu-item-img img');
+        if (imgEl) {
+          makeImageEditable(imgEl, (url) => updateMenuItem(id, { img: url }));
+        } else {
+          card.querySelector('.menu-item-img').addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'file'; input.accept = 'image/*';
+            input.addEventListener('change', async () => {
+              const file = input.files[0];
+              if (!file) return;
+              showToast('Uploading...');
+              const url = await uploadImage(file);
+              updateMenuItem(id, { img: url });
+              renderMenu();
+            });
+            input.click();
+          });
+        }
+        card.querySelector('[data-remove]').addEventListener('click', () => {
+          if (confirm('Remove this item?')) { deleteCustomMenuItem(id); renderMenu(); }
+        });
+      });
+
+      document.getElementById('add-menu-item-card').addEventListener('click', showAddItemForm);
+    } else {
+      if (!items.length) { grid.innerHTML = `<p class="muted">No items in this category yet.</p>`; return; }
+      grid.innerHTML = items.map(it => `
+        <div class="card">
+          <div style="height:170px; border-radius:4px; background:var(--nav); margin-bottom:18px; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px; overflow:hidden;">
+            ${it.img ? `<img src="${it.img}" alt="${it.name}" style="width:100%;height:100%;object-fit:cover;">` : 'Photo coming'}
+          </div>
+          <p class="eyebrow" style="margin-bottom:6px;">${it.category}</p>
+          <h3 style="font-size:19px; margin-bottom:8px;">${it.name}</h3>
+          <p class="muted" style="font-size:14px; margin-bottom:14px;">${it.desc || ''}</p>
+          <p style="color:var(--gold); font-weight:700;">$${Number(it.price).toFixed(2)}</p>
+        </div>
+      `).join('');
+    }
   }
+
+  function showAddItemForm() {
+    const formCard = document.createElement('div');
+    formCard.className = 'card';
+    formCard.innerHTML = `
+      <form class="inline-add-form">
+        <input type="text" placeholder="Item name" data-f="name" required>
+        <select data-f="category">${['Drinks','Bakes','Food','Cakes'].map(c => `<option>${c}</option>`).join('')}</select>
+        <input type="text" placeholder="Price (e.g. 5.50)" data-f="price" required>
+        <textarea placeholder="Description" data-f="desc" rows="2"></textarea>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Add</button>
+      </form>
+    `;
+    document.getElementById('add-menu-item-card').replaceWith(formCard);
+    formCard.querySelector('form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const f = key => formCard.querySelector(`[data-f="${key}"]`).value;
+      addMenuItem({ name: f('name'), category: f('category'), price: parseFloat(f('price')) || 0, desc: f('desc'), img: '' });
+      renderMenu();
+    });
+  }
+
+  document.addEventListener('cafeish:editmodechange', (e) => { editModeOn = e.detail.on; renderMenu(); });
 
   document.querySelectorAll('#filter-pills button').forEach(btn => {
     btn.addEventListener('click', () => {

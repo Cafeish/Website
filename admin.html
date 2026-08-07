@@ -23,7 +23,8 @@
 
 <nav class="site-nav">
   <div class="wrap">
-    <a href="index.html" class="logo-mark"><span class="logo-fallback">cafeish<span class="dot">.</span></span></a>
+    <a href="index.html" class="logo-mark"><img class="logo-img" src="" alt="Cafeish" style="display:none; height:34px;">
+      <span class="logo-fallback">cafeish<span class="dot">.</span></span></a>
     <ul class="nav-links">
       <li><a href="index.html" data-page="index.html">Story</a></li>
       <li><a href="menu.html" data-page="menu.html">Menu</a></li>
@@ -144,6 +145,17 @@
     <!-- THEME TAB -->
     <div class="admin-panel" id="panel-theme">
       <div class="grid-2" style="align-items:start;">
+        <div style="display:flex; flex-direction:column; gap:24px;">
+        <div class="card">
+          <p class="eyebrow" style="margin-bottom:20px;">Logo</p>
+          <div class="thumb-preview" id="logo-preview" style="height:80px; margin-bottom:16px;">No logo uploaded — showing text placeholder</div>
+          <input type="file" id="logo-upload" accept="image/*">
+          <div style="display:flex; gap:12px; margin-top:14px;">
+            <button id="logo-remove-btn" class="btn btn-outline" style="display:none;">Remove logo</button>
+          </div>
+          <p class="muted" style="font-size:13px; margin-top:14px;">Replaces the "cafeish." text in the top-left of every page's navigation. Use a transparent PNG for best results.</p>
+        </div>
+
         <div class="card">
           <p class="eyebrow" style="margin-bottom:20px;">Colors</p>
           <div class="swatch-row"><label>Background</label><input type="color" id="th-bg"><span class="muted" id="th-bg-val" style="font-size:13px;"></span></div>
@@ -164,11 +176,15 @@
           </div>
           <p class="muted" style="font-size:13px; margin-top:14px;">Changes apply live across every page as soon as you save.</p>
         </div>
+        </div>
 
         <div class="card">
           <p class="eyebrow" style="margin-bottom:16px;">Live preview</p>
           <div style="border:1px solid var(--border); border-radius:6px; overflow:hidden;">
-            <div style="background:var(--nav); padding:16px 20px; font-family:var(--font-family);">cafeish<span style="color:var(--gold);">.</span></div>
+            <div style="background:var(--nav); padding:16px 20px; font-family:var(--font-family); display:flex; align-items:center; gap:8px;">
+              <img id="preview-logo-img" src="" alt="" style="height:28px; display:none;">
+              <span id="preview-logo-text">cafeish<span style="color:var(--gold);">.</span></span>
+            </div>
             <div style="background:var(--bg); padding:24px 20px;">
               <p style="font-family:var(--font-family); color:var(--text); font-size:20px; margin-bottom:10px;">The flavors St. Louis didn't know it was missing.</p>
               <p style="font-family:var(--font-family); color:var(--muted); font-size:14px; margin-bottom:16px;">Pop-ups and catering across St. Louis.</p>
@@ -326,8 +342,51 @@
       document.getElementById('th-' + k + '-val').textContent = theme[k];
     });
     populateFontOptions(theme.font);
+    updateLogoPreview(theme.logo);
     applyTheme(theme); // live preview uses the same CSS vars as the real site
   }
+
+  function updateLogoPreview(logoUrl) {
+    currentLogoUrl = logoUrl || '';
+    const preview = document.getElementById('logo-preview');
+    const removeBtn = document.getElementById('logo-remove-btn');
+    const previewImg = document.getElementById('preview-logo-img');
+    const previewText = document.getElementById('preview-logo-text');
+    if (logoUrl) {
+      preview.innerHTML = `<img src="${logoUrl}" style="max-height:100%; max-width:100%; object-fit:contain;">`;
+      removeBtn.style.display = '';
+      previewImg.src = logoUrl;
+      previewImg.style.display = '';
+      previewText.style.display = 'none';
+    } else {
+      preview.innerHTML = 'No logo uploaded — showing text placeholder';
+      removeBtn.style.display = 'none';
+      previewImg.style.display = 'none';
+      previewText.style.display = '';
+    }
+  }
+
+  document.getElementById('logo-upload').addEventListener('change', async function () {
+    const file = this.files[0];
+    if (!file) return;
+    showToast('Uploading logo...');
+    const url = await uploadImage(file);
+    const theme = currentThemeFormValues();
+    theme.logo = url;
+    updateLogoPreview(url);
+    applyTheme(theme);
+    await saveTheme(theme);
+    showToast('Logo saved — live on every page now.');
+  });
+
+  document.getElementById('logo-remove-btn').addEventListener('click', async () => {
+    const theme = currentThemeFormValues();
+    theme.logo = '';
+    updateLogoPreview('');
+    applyTheme(theme);
+    await saveTheme(theme);
+    showToast('Logo removed — back to text placeholder.');
+  });
 
   themeFields.forEach(k => {
     document.getElementById('th-' + k).addEventListener('input', function () {
@@ -339,10 +398,13 @@
     applyTheme(currentThemeFormValues());
   });
 
+  let currentLogoUrl = '';
+
   function currentThemeFormValues() {
     const t = {};
     themeFields.forEach(k => t[k] = document.getElementById('th-' + k).value);
     t.font = document.getElementById('th-font').value;
+    t.logo = currentLogoUrl;
     return t;
   }
 

@@ -68,26 +68,42 @@ function saveJSON(key, value) {
 }
 
 // ---------- MENU ITEMS ----------
+// Everything (the starter items from data.js AND anything added later) lives
+// as one editable, deletable list once the page has loaded once — so you can
+// edit or remove the original seed items too, not just ones you added.
 function getAllMenuItems() {
-  const base = typeof DEFAULT_MENU_ITEMS !== 'undefined' ? DEFAULT_MENU_ITEMS : [];
-  const custom = loadJSON(STORE_KEYS.menuItems, []);
-  return [...base, ...custom];
+  let items = loadJSON(STORE_KEYS.menuItems, null);
+  if (items === null) {
+    const base = typeof DEFAULT_MENU_ITEMS !== 'undefined' ? DEFAULT_MENU_ITEMS : [];
+    items = base.map((it, i) => ({ ...it, id: it.id || ('seed_' + i) }));
+    saveJSON(STORE_KEYS.menuItems, items);
+  }
+  return items;
 }
 
 function getCustomMenuItems() {
-  return loadJSON(STORE_KEYS.menuItems, []);
+  return getAllMenuItems();
 }
 
 function addMenuItem(item) {
-  const custom = loadJSON(STORE_KEYS.menuItems, []);
-  custom.push({ ...item, id: 'custom_' + Date.now() });
-  saveJSON(STORE_KEYS.menuItems, custom);
+  const items = getAllMenuItems();
+  items.push({ ...item, id: 'item_' + Date.now() });
+  saveJSON(STORE_KEYS.menuItems, items);
+}
+
+function updateMenuItem(id, changes) {
+  const items = getAllMenuItems();
+  const idx = items.findIndex(i => i.id === id);
+  if (idx > -1) {
+    items[idx] = { ...items[idx], ...changes };
+    saveJSON(STORE_KEYS.menuItems, items);
+  }
 }
 
 function deleteCustomMenuItem(id) {
-  let custom = loadJSON(STORE_KEYS.menuItems, []);
-  custom = custom.filter(i => i.id !== id);
-  saveJSON(STORE_KEYS.menuItems, custom);
+  let items = getAllMenuItems();
+  items = items.filter(i => i.id !== id);
+  saveJSON(STORE_KEYS.menuItems, items);
 }
 
 // ---------- REVIEWS ----------
@@ -136,25 +152,38 @@ function addWaitlistSignup(entry) {
 
 // ---------- TEAM MEMBERS ----------
 function getTeamMembers() {
-  const base = typeof TEAM_MEMBERS !== 'undefined' ? TEAM_MEMBERS : [];
-  const custom = loadJSON(STORE_KEYS.team, []);
-  return custom.length ? custom : base;
+  let members = loadJSON(STORE_KEYS.team, null);
+  if (members === null) {
+    const base = typeof TEAM_MEMBERS !== 'undefined' ? TEAM_MEMBERS : [];
+    members = base.map((m, i) => ({ ...m, id: m.id || ('seedteam_' + i) }));
+    saveJSON(STORE_KEYS.team, members);
+  }
+  return members;
 }
 
 function getCustomTeamMembers() {
-  return loadJSON(STORE_KEYS.team, []);
+  return getTeamMembers();
 }
 
 function addTeamMember(member) {
-  const custom = loadJSON(STORE_KEYS.team, []);
-  custom.push({ ...member, id: 'team_' + Date.now() });
-  saveJSON(STORE_KEYS.team, custom);
+  const members = getTeamMembers();
+  members.push({ ...member, id: 'team_' + Date.now() });
+  saveJSON(STORE_KEYS.team, members);
+}
+
+function updateTeamMember(id, changes) {
+  const members = getTeamMembers();
+  const idx = members.findIndex(m => m.id === id);
+  if (idx > -1) {
+    members[idx] = { ...members[idx], ...changes };
+    saveJSON(STORE_KEYS.team, members);
+  }
 }
 
 function deleteTeamMember(id) {
-  let custom = loadJSON(STORE_KEYS.team, []);
-  custom = custom.filter(m => m.id !== id);
-  saveJSON(STORE_KEYS.team, custom);
+  let members = getTeamMembers();
+  members = members.filter(m => m.id !== id);
+  saveJSON(STORE_KEYS.team, members);
 }
 
 // ---------- THEME (decorations: colors + font) ----------
@@ -187,6 +216,19 @@ function applyTheme(theme) {
       document.head.appendChild(link);
     }
   }
+
+  document.querySelectorAll('.logo-mark').forEach(mark => {
+    const img = mark.querySelector('.logo-img');
+    const fallback = mark.querySelector('.logo-fallback');
+    if (theme.logo && img) {
+      img.src = theme.logo;
+      img.style.display = '';
+      if (fallback) fallback.style.display = 'none';
+    } else {
+      if (img) img.style.display = 'none';
+      if (fallback) fallback.style.display = '';
+    }
+  });
 }
 
 function initTheme() {
@@ -218,6 +260,9 @@ function unlockAdmin(password) {
     return true;
   }
   return false;
+}
+function isEditModeOn() {
+  return isAdminUnlocked() && sessionStorage.getItem('cafeish_edit_mode') === 'true';
 }
 
 // ---------- ON-PAGE TEXT/IMAGE EDITING ----------

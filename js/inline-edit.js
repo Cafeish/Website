@@ -60,6 +60,7 @@ function buildEditToolbar() {
     resetBtn.style.display = on ? '' : 'none';
     document.querySelectorAll('[data-edit-key]').forEach(el => wireTextEditable(el, on));
     document.querySelectorAll('[data-edit-img-key]').forEach(el => wireImageEditable(el, on));
+    document.dispatchEvent(new CustomEvent('cafeish:editmodechange', { detail: { on } }));
   }
 
   toggleBtn.addEventListener('click', () => setEditMode(!editMode));
@@ -138,4 +139,46 @@ function wireImageEditable(el, on) {
   } else if (overlay) {
     overlay.style.display = 'none';
   }
+}
+
+// Same idea as wireImageEditable, but for dynamically rendered cards (menu
+// items, team members) where the change should go through a callback
+// (onSave) rather than the static data-edit-img-key mechanism, since these
+// items can be added/removed and don't have a fixed key.
+function makeImageEditable(el, onSave) {
+  let wrapper = el.closest('.edit-img-wrap');
+  if (!wrapper) {
+    wrapper = document.createElement('div');
+    wrapper.className = 'edit-img-wrap';
+    wrapper.style.cssText = 'position:relative; display:inline-block; width:100%; height:100%;';
+    el.parentNode.insertBefore(wrapper, el);
+    wrapper.appendChild(el);
+  }
+  if (wrapper.querySelector('.edit-img-overlay')) return; // already wired
+
+  const overlay = document.createElement('div');
+  overlay.className = 'edit-img-overlay';
+  overlay.style.cssText = `
+    position:absolute; inset:0; background:rgba(42,10,10,0.55);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--gold); font-size:13px; font-weight:700; cursor:pointer;
+    border-radius:inherit;
+  `;
+  overlay.textContent = '📷 Change photo';
+  overlay.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.addEventListener('change', async () => {
+      const file = input.files[0];
+      if (!file) return;
+      showToast('Uploading...');
+      const url = await uploadImage(file);
+      el.src = url;
+      onSave(url);
+      showToast('Photo updated.');
+    });
+    input.click();
+  });
+  wrapper.appendChild(overlay);
 }

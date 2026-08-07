@@ -284,6 +284,22 @@ section { padding: 96px 0; }
 .pill-active { border-color: var(--gold) !important; color: var(--gold) !important; }
 .pill-btn.active { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--gold); }
 
+.edit-item-card { position: relative; }
+.edit-remove-btn {
+  position: absolute; top: 10px; right: 10px; z-index: 5;
+  background: rgba(42,10,10,0.85); color: var(--gold); border: 1px solid var(--gold);
+  border-radius: 999px; width: 26px; height: 26px; font-size: 14px; line-height: 1;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.edit-field { outline: 1px dashed var(--gold); outline-offset: 2px; cursor: text; border-radius: 2px; }
+.add-item-card {
+  border: 1px dashed var(--border); border-radius: 6px; padding: 28px;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  color: var(--muted); cursor: pointer; min-height: 180px; font-size: 14px;
+}
+.add-item-card:hover { border-color: var(--gold); color: var(--gold); }
+.inline-add-form input, .inline-add-form select, .inline-add-form textarea { margin-bottom: 10px; }
+
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
 }

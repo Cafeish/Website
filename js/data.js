@@ -78,7 +78,8 @@ const DEFAULT_THEME = {
   text: "#EDE0CC",
   muted: "#C9B99A",
   gold: "#C9974A",
-  font: "Comfortaa"
+  font: "Comfortaa",
+  logo: ""
 };
 
 // Curated so every option stays readable on a dark background.

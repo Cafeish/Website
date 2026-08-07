@@ -10,7 +10,8 @@
 
 <nav class="site-nav">
   <div class="wrap">
-    <a href="index.html" class="logo-mark"><span class="logo-fallback">cafeish<span class="dot">.</span></span></a>
+    <a href="index.html" class="logo-mark"><img class="logo-img" src="" alt="Cafeish" style="display:none; height:34px;">
+      <span class="logo-fallback">cafeish<span class="dot">.</span></span></a>
     <ul class="nav-links">
       <li><a href="index.html" data-page="index.html">Story</a></li>
       <li><a href="menu.html" data-page="menu.html">Menu</a></li>
@@ -83,19 +84,93 @@
 <script src="js/main.js"></script>
 <script src="js/inline-edit.js"></script>
 <script>
-  (async function () {
+  let teamEditModeOn = isEditModeOn();
+
+  function renderTeam() {
     const members = getTeamMembers();
-    document.getElementById('team-grid').innerHTML = members.map(m => `
-      <div class="card">
-        <div style="height:220px; border-radius:4px; background:var(--nav); margin-bottom:18px; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px; overflow:hidden;">
-          ${m.img ? `<img src="${m.img}" alt="${m.name}" style="width:100%;height:100%;object-fit:cover;border-radius:4px;">` : 'Photo coming'}
+    const grid = document.getElementById('team-grid');
+
+    if (teamEditModeOn) {
+      grid.innerHTML = members.map(m => `
+        <div class="card edit-item-card" data-member-id="${m.id}">
+          <button class="edit-remove-btn" data-remove="${m.id}" title="Remove team member">✕</button>
+          <div class="team-member-img" style="height:220px; border-radius:4px; background:var(--nav); margin-bottom:18px; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px; overflow:hidden;">
+            ${m.img ? `<img src="${m.img}" alt="${m.name}" style="width:100%;height:100%;object-fit:cover;">` : '<span>Click to add photo</span>'}
+          </div>
+          <h3 class="edit-field" data-field="name" contenteditable="true" style="font-size:18px; margin-bottom:4px;">${m.name}</h3>
+          <p class="edit-field eyebrow" data-field="role" contenteditable="true" style="margin-bottom:10px;">${m.role}</p>
+          <p class="edit-field muted" data-field="bio" contenteditable="true" style="font-size:14px;">${m.bio}</p>
         </div>
-        <h3 style="font-size:18px; margin-bottom:4px;">${m.name}</h3>
-        <p class="eyebrow" style="margin-bottom:10px;">${m.role}</p>
-        <p class="muted" style="font-size:14px;">${m.bio}</p>
-      </div>
-    `).join('');
-  })();
+      `).join('') + `<div class="add-item-card" id="add-team-member-card">+ Add team member</div>`;
+
+      grid.querySelectorAll('.edit-item-card').forEach(card => {
+        const id = card.dataset.memberId;
+        card.querySelectorAll('[contenteditable]').forEach(field => {
+          field.addEventListener('blur', () => {
+            updateTeamMember(id, { [field.dataset.field]: field.textContent.trim() });
+          });
+        });
+        const imgEl = card.querySelector('.team-member-img img');
+        if (imgEl) {
+          makeImageEditable(imgEl, (url) => updateTeamMember(id, { img: url }));
+        } else {
+          card.querySelector('.team-member-img').addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'file'; input.accept = 'image/*';
+            input.addEventListener('change', async () => {
+              const file = input.files[0];
+              if (!file) return;
+              showToast('Uploading...');
+              const url = await uploadImage(file);
+              updateTeamMember(id, { img: url });
+              renderTeam();
+            });
+            input.click();
+          });
+        }
+        card.querySelector('[data-remove]').addEventListener('click', () => {
+          if (confirm('Remove this team member?')) { deleteTeamMember(id); renderTeam(); }
+        });
+      });
+
+      document.getElementById('add-team-member-card').addEventListener('click', showAddMemberForm);
+    } else {
+      grid.innerHTML = members.map(m => `
+        <div class="card">
+          <div style="height:220px; border-radius:4px; background:var(--nav); margin-bottom:18px; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px; overflow:hidden;">
+            ${m.img ? `<img src="${m.img}" alt="${m.name}" style="width:100%;height:100%;object-fit:cover;">` : 'Photo coming'}
+          </div>
+          <h3 style="font-size:18px; margin-bottom:4px;">${m.name}</h3>
+          <p class="eyebrow" style="margin-bottom:10px;">${m.role}</p>
+          <p class="muted" style="font-size:14px;">${m.bio}</p>
+        </div>
+      `).join('');
+    }
+  }
+
+  function showAddMemberForm() {
+    const formCard = document.createElement('div');
+    formCard.className = 'card';
+    formCard.innerHTML = `
+      <form class="inline-add-form">
+        <input type="text" placeholder="Name" data-f="name" required>
+        <input type="text" placeholder="Role" data-f="role" required>
+        <textarea placeholder="One-line bio" data-f="bio" rows="2" required></textarea>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Add</button>
+      </form>
+    `;
+    document.getElementById('add-team-member-card').replaceWith(formCard);
+    formCard.querySelector('form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const f = key => formCard.querySelector(`[data-f="${key}"]`).value;
+      addTeamMember({ name: f('name'), role: f('role'), bio: f('bio'), img: '' });
+      renderTeam();
+    });
+  }
+
+  document.addEventListener('cafeish:editmodechange', (e) => { teamEditModeOn = e.detail.on; renderTeam(); });
+
+  renderTeam();
 </script>
 </body>
 </html>
