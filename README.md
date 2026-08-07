@@ -43,8 +43,8 @@ upgrade — connecting a database — for later, not something you need to worry
 
 Go to `/admin.html` (not linked in the nav). Default password is `cafeish2026` — change it in
 `js/site-config.js` before sharing it with your team.
-
-## Getting a live URL (free, no setup) — GitHub Pages
+## Need from Aisha
+  ## Getting a live URL (free, no setup) — GitHub Pages
 
 Once this is pushed to GitHub (see below), you can get a real `https://` URL for free in about
 2 minutes:
@@ -54,46 +54,9 @@ Once this is pushed to GitHub (see below), you can get a real `https://` URL for
 3. Click **Save**
 4. Wait ~1 minute, refresh the page — GitHub gives you a URL like `https://your-username.github.io/cafeish-website/`
 
-That's your live site. Share that link with Aisha. Any time you push new changes to `main`,
-the live site updates automatically within a minute or two.
-
-## Pushing to GitHub
-
-If the repo doesn't exist yet:
-
-```bash
-cd cafeish-website
-git init
-git add .
-git commit -m "Initial site"
-git branch -M main
-git remote add origin https://github.com/YOUR-USERNAME/cafeish-website.git
-git push -u origin main
-```
-
-If the repo already exists and you're adding this to it:
-
-```bash
-cd cafeish-website
-git remote add origin https://github.com/YOUR-USERNAME/cafeish-website.git
-git pull origin main --allow-unrelated-histories
-git add .
-git commit -m "Add Cafeish site"
-git push -u origin main
-```
-
-Then invite your teammates as collaborators on GitHub (Settings → Collaborators), and have everyone
-`git clone` the repo to get a local copy.
-
-## Suggested team workflow from here
-
-- Nobody commits directly to `main` — branch per task: `git checkout -b yourname/task-name`
-- Open a Pull Request to merge into `main`, get one teammate to glance at it before merging
-- Push work-in-progress branches daily so everyone can see what's in progress
-
-## Still needed from Aisha
+That's your live site. 
 
 - Full menu list + prices (placeholder items are in `js/data.js` now — add real ones via `/admin.html`, or edit `DEFAULT_MENU_ITEMS` directly)
 - Team photos + bios (placeholder team members are in `js/data.js` now)
 - Final logo PNG — swap into the `.logo-mark` element in each page's `<nav>` (currently text placeholder)
-- Real hero images/video frames for the filmstrip animation (`index.html`, look for the `frames` array in the `<script>` at the bottom)
+
