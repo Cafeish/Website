@@ -46,10 +46,12 @@ function showToast(message) {
 const STORE_KEYS = {
   menuItems: 'cafeish_menu_items',
   reviews: 'cafeish_reviews',
-  orders: 'cafeish_orders',
+  catering: 'cafeish_catering',
+  notifyMe: 'cafeish_notify_me',
   waitlist: 'cafeish_waitlist',
   team: 'cafeish_team',
-  theme: 'cafeish_theme'
+  theme: 'cafeish_theme',
+  pageEdits: 'cafeish_page_edits'
 };
 
 function loadJSON(key, fallback) {
@@ -111,11 +113,18 @@ function starString(rating) {
   return '★'.repeat(r) + '☆'.repeat(5 - r);
 }
 
-// ---------- ORDERS ----------
-function addOrder(order) {
-  const orders = loadJSON(STORE_KEYS.orders, []);
-  orders.unshift({ ...order, id: 'o_' + Date.now(), date: new Date().toISOString() });
-  saveJSON(STORE_KEYS.orders, orders);
+// ---------- CATERING INQUIRIES ----------
+function addCateringInquiry(entry) {
+  const list = loadJSON(STORE_KEYS.catering, []);
+  list.unshift({ ...entry, id: 'c_' + Date.now(), date: new Date().toISOString() });
+  saveJSON(STORE_KEYS.catering, list);
+}
+
+// ---------- ORDER PAGE "NOTIFY ME" (ordering isn't live yet) ----------
+function addNotifyMe(entry) {
+  const list = loadJSON(STORE_KEYS.notifyMe, []);
+  list.unshift({ ...entry, id: 'n_' + Date.now(), date: new Date().toISOString() });
+  saveJSON(STORE_KEYS.notifyMe, list);
 }
 
 // ---------- WAITLIST ----------
@@ -209,4 +218,43 @@ function unlockAdmin(password) {
     return true;
   }
   return false;
+}
+
+// ---------- ON-PAGE TEXT/IMAGE EDITING ----------
+// Powers the "Edit this page" toolbar: lets an unlocked admin click directly
+// on text or photos anywhere on the site and change them, no code required.
+// Everything saves to this browser's local storage, same as the rest of the
+// admin tools (see README for what that does and doesn't mean).
+function getPageEdits() {
+  return loadJSON(STORE_KEYS.pageEdits, {});
+}
+
+function setPageEdit(key, value) {
+  const edits = getPageEdits();
+  edits[key] = value;
+  saveJSON(STORE_KEYS.pageEdits, edits);
+}
+
+function clearPageEdit(key) {
+  const edits = getPageEdits();
+  delete edits[key];
+  saveJSON(STORE_KEYS.pageEdits, edits);
+}
+
+function resetAllPageEdits() {
+  saveJSON(STORE_KEYS.pageEdits, {});
+}
+
+// Applies any saved overrides to matching elements on the current page.
+// Safe to call on every page load — does nothing if nothing's been edited.
+function applyPageEdits() {
+  const edits = getPageEdits();
+  document.querySelectorAll('[data-edit-key]').forEach(el => {
+    const key = el.dataset.editKey;
+    if (edits[key] !== undefined) el.textContent = edits[key];
+  });
+  document.querySelectorAll('[data-edit-img-key]').forEach(el => {
+    const key = el.dataset.editImgKey;
+    if (edits[key] !== undefined) el.src = edits[key];
+  });
 }

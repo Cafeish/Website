@@ -25,7 +25,7 @@
 <header class="section-tight">
   <div class="wrap">
     <p class="eyebrow">Journal</p>
-    <h1 style="font-size:clamp(30px,4vw,46px); margin-top:10px;">Notes from the kitchen.</h1>
+    <h1 style="font-size:clamp(30px,4vw,46px); margin-top:10px;" data-edit-key="journal-headline">Notes from the kitchen.</h1>
   </div>
 </header>
 
@@ -55,6 +55,7 @@
 <script src="js/site-config.js"></script>
 <script src="js/data.js"></script>
 <script src="js/main.js"></script>
+<script src="js/inline-edit.js"></script>
 <script>
   const featured = JOURNAL_POSTS.find(p => p.featured) || JOURNAL_POSTS[0];
   const rest = JOURNAL_POSTS.filter(p => p.id !== featured.id);
