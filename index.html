@@ -133,6 +133,7 @@
     e.preventDefault();
     const email = this.querySelector('input').value;
     addWaitlistSignup({ email, firstName: '', source: 'home-hero' });
+    submitToInbox('New Cafeish waitlist signup', { email: email, Source: 'Home page hero' });
     showToast("You're on the list — see you soon.");
     this.reset();
   });

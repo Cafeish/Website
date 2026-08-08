@@ -111,11 +111,11 @@
 
   document.getElementById('review-form').addEventListener('submit', async function (e) {
     e.preventDefault();
-    addReview({
-      name: document.getElementById('rv-name').value,
-      rating: document.getElementById('rv-rating').value,
-      text: document.getElementById('rv-text').value
-    });
+    const name = document.getElementById('rv-name').value;
+    const rating = document.getElementById('rv-rating').value;
+    const text = document.getElementById('rv-text').value;
+    addReview({ name, rating, text });
+    submitToInbox('New Cafeish review', { name: name, Rating: rating + ' / 5', Review: text });
     showToast('Thanks for the review!');
     this.reset();
     renderReviews();

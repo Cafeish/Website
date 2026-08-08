@@ -99,10 +99,12 @@
 <script>
   document.getElementById('waitlist-form').addEventListener('submit', async function (e) {
     e.preventDefault();
-    addWaitlistSignup({
-      firstName: document.getElementById('wl-name').value,
-      email: document.getElementById('wl-email').value,
-      source: document.getElementById('wl-source').value
+    const firstName = document.getElementById('wl-name').value;
+    const email = document.getElementById('wl-email').value;
+    const source = document.getElementById('wl-source').value;
+    addWaitlistSignup({ firstName, email, source });
+    submitToInbox('New Cafeish waitlist signup', {
+      name: firstName, email: email, 'How they found us': source
     });
     showToast("You're on the list — see you soon.");
     this.reset();

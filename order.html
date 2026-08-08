@@ -117,16 +117,24 @@
       type: document.getElementById('o-type').value,
       details: document.getElementById('o-details').value
     };
-    addOrder(order);
+    addCateringInquiry(order);
+    const emailed = await submitToInbox(`Cafeish request: ${order.type}`, {
+      name: order.name, email: order.email, phone: order.phone, Type: order.type, Details: order.details
+    });
 
-    // Also opens a pre-filled email as a reliable fallback until a real backend/email service is wired up
-    const subject = encodeURIComponent(`Cafeish request: ${order.type}`);
-    const body = encodeURIComponent(`Name: ${order.name}\nEmail: ${order.email}\nPhone: ${order.phone}\n\n${order.details}`);
-    showToast("Request saved. Opening your email to send it too...");
-    setTimeout(() => {
-      window.location.href = `mailto:${CONTACT_INFO.email}?subject=${subject}&body=${body}`;
-    }, 900);
-    this.reset();
+    if (emailed) {
+      showToast('Request sent — we\'ll be in touch.');
+      this.reset();
+    } else {
+      // Email notifications aren't configured yet — fall back to opening the visitor's own email client
+      const subject = encodeURIComponent(`Cafeish request: ${order.type}`);
+      const body = encodeURIComponent(`Name: ${order.name}\nEmail: ${order.email}\nPhone: ${order.phone}\n\n${order.details}`);
+      showToast('Opening your email to send this...');
+      setTimeout(() => {
+        window.location.href = `mailto:${CONTACT_INFO.email}?subject=${subject}&body=${body}`;
+      }, 900);
+      this.reset();
+    }
   });
 </script>
 </body>

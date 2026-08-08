@@ -250,6 +250,34 @@ function uploadImage(file) {
   });
 }
 
+// ---------- EMAIL NOTIFICATIONS ----------
+// Sends a form submission straight to the team's inbox (see site-config.js).
+// Runs alongside the local save above — local save is just a same-browser
+// backup; this is what actually gets the submission in front of a person.
+async function submitToInbox(subject, data) {
+  if (typeof WEB3FORMS_ACCESS_KEY === 'undefined' || !WEB3FORMS_ACCESS_KEY || WEB3FORMS_ACCESS_KEY === 'YOUR_ACCESS_KEY') {
+    console.warn('Email notifications not set up yet — see js/site-config.js. Submission was still saved locally.');
+    return false;
+  }
+  try {
+    const res = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({
+        access_key: WEB3FORMS_ACCESS_KEY,
+        subject: subject,
+        from_name: 'Cafeish website',
+        ...data
+      })
+    });
+    const result = await res.json();
+    return !!result.success;
+  } catch (e) {
+    console.warn('Email notification failed to send.', e);
+    return false;
+  }
+}
+
 // ---------- ADMIN SESSION GATE ----------
 function isAdminUnlocked() {
   return sessionStorage.getItem('cafeish_admin_ok') === 'true';
