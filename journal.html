@@ -15,8 +15,10 @@
     <ul class="nav-links">
       <li><a href="index.html" data-page="index.html">Story</a></li>
       <li><a href="menu.html" data-page="menu.html">Menu</a></li>
+      <li><a href="catering.html" data-page="catering.html">Catering</a></li>
       <li><a href="about.html" data-page="about.html">About</a></li>
-      <li><a href="journal.html" data-page="journal.html" class="active">Journal</a></li>
+      <li><a href="journal.html" data-page="journal.html">Journal</a></li>
+      <li><a href="order.html" data-page="order.html">Order <span style="font-size:9px; color:var(--gold); border:1px solid var(--gold); border-radius:999px; padding:2px 6px; margin-left:4px; vertical-align:middle; letter-spacing:0.05em; text-transform:uppercase;">soon</span></a></li>
       <li><a href="waitlist.html" class="pill-btn">Get early access →</a></li>
     </ul>
     <button class="nav-toggle" aria-label="Toggle menu">☰</button>
@@ -40,16 +42,16 @@
 <footer class="site-footer">
   <div class="wrap">
     <div class="footer-grid">
-      <div class="footer-col"><h4>Cafeish</h4><p>Pop-ups &amp; catering across St. Louis.</p></div>
+      <div class="footer-col"><h4>Cafeish</h4><p data-edit-key="footer-tagline">Pop-ups &amp; catering across St. Louis.</p></div>
       <div class="footer-col"><h4>Explore</h4>
-        <a href="menu.html">Menu</a><a href="about.html">About</a><a href="journal.html">Journal</a><a href="waitlist.html">Early access</a>
+        <a href="menu.html">Menu</a><a href="catering.html">Catering</a><a href="about.html">About</a><a href="journal.html">Journal</a><a href="waitlist.html">Early access</a>
       </div>
       <div class="footer-col"><h4>Connect</h4>
-        <a href="order.html">Order &amp; contact</a><a href="reviews.html">Reviews</a>
+        <a href="order.html">Order</a><a href="reviews.html">Reviews</a>
       </div>
     </div>
     <hr class="rule">
-    <p class="footer-bottom" style="margin-top:24px;">© 2026 Cafeish. St. Louis, MO.</p>
+    <p class="footer-bottom" style="margin-top:24px;" data-edit-key="footer-copyright">© 2026 Cafeish. St. Louis, MO.</p>
   </div>
 </footer>
 
@@ -58,31 +60,132 @@
 <script src="js/main.js"></script>
 <script src="js/inline-edit.js"></script>
 <script>
-  const featured = JOURNAL_POSTS.find(p => p.featured) || JOURNAL_POSTS[0];
-  const rest = JOURNAL_POSTS.filter(p => p.id !== featured.id);
+  let journalEditModeOn = isEditModeOn();
 
-  document.getElementById('featured-post').innerHTML = `
-    <div style="height:340px; border-radius:6px; background:var(--surface); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:13px;">
-      ${featured.img ? `<img src="${featured.img}" alt="${featured.title}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">` : 'Photo coming'}
-    </div>
-    <div>
-      <p class="eyebrow" style="margin-bottom:12px;">Featured</p>
-      <h2 style="font-size:28px; margin-bottom:14px;">${featured.title}</h2>
-      <p class="muted" style="margin-bottom:16px;">${featured.excerpt}</p>
-      <p class="muted" style="font-size:13px;">${new Date(featured.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
-    </div>
-  `;
+  function renderJournal() {
+    const posts = getJournalPosts();
+    if (!posts.length) {
+      document.getElementById('featured-post').innerHTML = '';
+      document.getElementById('journal-grid').innerHTML = journalEditModeOn
+        ? `<div class="add-item-card" id="add-post-card">+ Add journal post</div>`
+        : `<p class="muted">No posts yet.</p>`;
+      if (journalEditModeOn) document.getElementById('add-post-card').addEventListener('click', showAddPostForm);
+      return;
+    }
 
-  document.getElementById('journal-grid').innerHTML = rest.map(p => `
-    <div class="card">
-      <div style="height:150px; border-radius:4px; background:var(--nav); margin-bottom:16px; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px;">
-        ${p.img ? `<img src="${p.img}" alt="${p.title}" style="width:100%;height:100%;object-fit:cover;border-radius:4px;">` : 'Photo coming'}
-      </div>
-      <h3 style="font-size:17px; margin-bottom:8px;">${p.title}</h3>
-      <p class="muted" style="font-size:14px; margin-bottom:12px;">${p.excerpt}</p>
-      <p class="muted" style="font-size:12px;">${new Date(p.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
-    </div>
-  `).join('');
+    const featured = posts.find(p => p.featured) || posts[0];
+    const rest = posts.filter(p => p.id !== featured.id);
+    const fmt = d => { try { return new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }); } catch (e) { return d; } };
+
+    if (journalEditModeOn) {
+      document.getElementById('featured-post').innerHTML = `
+        <div class="featured-post-img" style="height:340px; border-radius:6px; background:var(--surface); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:13px; overflow:hidden;">
+          ${featured.img ? `<img src="${featured.img}" alt="${featured.title}" style="width:100%;height:100%;object-fit:cover;">` : '<span>Click to add photo</span>'}
+        </div>
+        <div class="edit-item-card" data-post-id="${featured.id}" style="position:relative;">
+          <button class="edit-remove-btn" data-remove="${featured.id}" title="Remove post">✕</button>
+          <p class="eyebrow" style="margin-bottom:12px;">Featured</p>
+          <h2 class="edit-field" data-field="title" contenteditable="true" style="font-size:28px; margin-bottom:14px;">${featured.title}</h2>
+          <p class="edit-field muted" data-field="excerpt" contenteditable="true" style="margin-bottom:16px;">${featured.excerpt}</p>
+          <p class="muted" style="font-size:13px;">${fmt(featured.date)}</p>
+        </div>
+      `;
+      wireJournalCard(document.querySelector('#featured-post .edit-item-card'), featured, document.querySelector('.featured-post-img'));
+
+      document.getElementById('journal-grid').innerHTML = rest.map(p => `
+        <div class="card edit-item-card" data-post-id="${p.id}">
+          <button class="edit-remove-btn" data-remove="${p.id}" title="Remove post">✕</button>
+          <div class="journal-post-img" style="height:150px; border-radius:4px; background:var(--nav); margin-bottom:16px; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px; overflow:hidden;">
+            ${p.img ? `<img src="${p.img}" alt="${p.title}" style="width:100%;height:100%;object-fit:cover;">` : '<span>Click to add photo</span>'}
+          </div>
+          <h3 class="edit-field" data-field="title" contenteditable="true" style="font-size:17px; margin-bottom:8px;">${p.title}</h3>
+          <p class="edit-field muted" data-field="excerpt" contenteditable="true" style="font-size:14px; margin-bottom:12px;">${p.excerpt}</p>
+          <p class="muted" style="font-size:12px;">${fmt(p.date)}</p>
+        </div>
+      `).join('') + `<div class="add-item-card" id="add-post-card">+ Add journal post</div>`;
+
+      document.querySelectorAll('#journal-grid .edit-item-card').forEach(card => {
+        const post = posts.find(x => x.id === card.dataset.postId);
+        wireJournalCard(card, post, card.querySelector('.journal-post-img'));
+      });
+
+      document.getElementById('add-post-card').addEventListener('click', showAddPostForm);
+    } else {
+      document.getElementById('featured-post').innerHTML = `
+        <div style="height:340px; border-radius:6px; background:var(--surface); display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:13px; overflow:hidden;">
+          ${featured.img ? `<img src="${featured.img}" alt="${featured.title}" style="width:100%;height:100%;object-fit:cover;">` : 'Photo coming'}
+        </div>
+        <div>
+          <p class="eyebrow" style="margin-bottom:12px;">Featured</p>
+          <h2 style="font-size:28px; margin-bottom:14px;">${featured.title}</h2>
+          <p class="muted" style="margin-bottom:16px;">${featured.excerpt}</p>
+          <p class="muted" style="font-size:13px;">${fmt(featured.date)}</p>
+        </div>
+      `;
+      document.getElementById('journal-grid').innerHTML = rest.map(p => `
+        <div class="card">
+          <div style="height:150px; border-radius:4px; background:var(--nav); margin-bottom:16px; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px; overflow:hidden;">
+            ${p.img ? `<img src="${p.img}" alt="${p.title}" style="width:100%;height:100%;object-fit:cover;">` : 'Photo coming'}
+          </div>
+          <h3 style="font-size:17px; margin-bottom:8px;">${p.title}</h3>
+          <p class="muted" style="font-size:14px; margin-bottom:12px;">${p.excerpt}</p>
+          <p class="muted" style="font-size:12px;">${fmt(p.date)}</p>
+        </div>
+      `).join('');
+    }
+  }
+
+  function wireJournalCard(card, post, imgWrap) {
+    card.querySelectorAll('[contenteditable]').forEach(field => {
+      field.addEventListener('blur', () => {
+        updateJournalPost(post.id, { [field.dataset.field]: field.textContent.trim() });
+      });
+    });
+    const imgEl = imgWrap ? imgWrap.querySelector('img') : null;
+    if (imgEl) {
+      makeImageEditable(imgEl, (url) => updateJournalPost(post.id, { img: url }));
+    } else if (imgWrap) {
+      imgWrap.addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'file'; input.accept = 'image/*';
+        input.addEventListener('change', async () => {
+          const file = input.files[0];
+          if (!file) return;
+          showToast('Uploading...');
+          const url = await uploadImage(file);
+          updateJournalPost(post.id, { img: url });
+          renderJournal();
+        });
+        input.click();
+      });
+    }
+    card.querySelector('[data-remove]').addEventListener('click', () => {
+      if (confirm('Remove this post?')) { deleteJournalPost(post.id); renderJournal(); }
+    });
+  }
+
+  function showAddPostForm() {
+    const formCard = document.createElement('div');
+    formCard.className = 'card';
+    formCard.innerHTML = `
+      <form class="inline-add-form">
+        <input type="text" placeholder="Post title" data-f="title" required>
+        <textarea placeholder="Excerpt" data-f="excerpt" rows="3" required></textarea>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Add post</button>
+      </form>
+    `;
+    document.getElementById('add-post-card').replaceWith(formCard);
+    formCard.querySelector('form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const f = key => formCard.querySelector(`[data-f="${key}"]`).value;
+      addJournalPost({ title: f('title'), excerpt: f('excerpt'), date: new Date().toISOString(), img: '' });
+      renderJournal();
+    });
+  }
+
+  document.addEventListener('cafeish:editmodechange', (e) => { journalEditModeOn = e.detail.on; renderJournal(); });
+
+  renderJournal();
 </script>
 </body>
 </html>

@@ -60,7 +60,7 @@ const JOURNAL_POSTS = [
 
 // ---- CONTACT INFO (used on Order page) ----
 const CONTACT_INFO = {
-  email: "hello@cafeish.com",
+  email: "cafeish.team@gmail.com",
   phone: "(314) 555-0142",
   instagram: "@cafeish",
   cateringNote: "For catering and pop-up bookings, tell us your date, headcount, and location."

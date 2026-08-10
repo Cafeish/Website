@@ -3,138 +3,73 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Order &amp; Contact — Cafeish</title>
+<title>Order — Coming Soon — Cafeish</title>
+<meta name="description" content="Online ordering opens with our first pop-up. Get notified the moment it's live.">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <nav class="site-nav">
   <div class="wrap">
-    <a href="index.html" class="logo-mark"><img class="logo-img" src="" alt="Cafeish" style="display:none; height:34px;">
-      <span class="logo-fallback">cafeish<span class="dot">.</span></span></a>
+    <a href="index.html" class="logo-mark">
+      <img class="logo-img" src="" alt="Cafeish" style="display:none; height:34px;">
+      <span class="logo-fallback">cafeish<span class="dot">.</span></span>
+    </a>
     <ul class="nav-links">
       <li><a href="index.html" data-page="index.html">Story</a></li>
       <li><a href="menu.html" data-page="menu.html">Menu</a></li>
+      <li><a href="catering.html" data-page="catering.html">Catering</a></li>
       <li><a href="about.html" data-page="about.html">About</a></li>
       <li><a href="journal.html" data-page="journal.html">Journal</a></li>
-      <li><a href="order.html" data-page="order.html" class="active">Order</a></li>
+      <li><a href="order.html" data-page="order.html">Order <span style="font-size:9px; color:var(--gold); border:1px solid var(--gold); border-radius:999px; padding:2px 6px; margin-left:4px; vertical-align:middle; letter-spacing:0.05em; text-transform:uppercase;">soon</span></a></li>
       <li><a href="waitlist.html" class="pill-btn">Get early access →</a></li>
     </ul>
     <button class="nav-toggle" aria-label="Toggle menu">☰</button>
   </div>
 </nav>
 
-<header class="section-tight">
-  <div class="wrap">
-    <p class="eyebrow">Order &amp; Contact</p>
-    <h1 style="font-size:clamp(30px,4.5vw,48px); margin-top:10px; max-width:640px;">Book catering, ask about our next pop-up, or just say hi.</h1>
-  </div>
-</header>
+<section style="min-height:64vh; display:flex; align-items:center;">
+  <div class="wrap" style="text-align:center; max-width:600px; margin:0 auto;">
+    <p class="eyebrow" style="margin-bottom:16px;">Order online</p>
+    <h1 style="font-size:clamp(32px,5vw,54px); margin-bottom:20px;" data-edit-key="order-coming-soon-headline">Coming soon.</h1>
+    <p class="muted" style="font-size:16px; margin-bottom:40px;" data-edit-key="order-coming-soon-subtext">Online ordering opens the moment our first pop-up goes live. Leave your email and we'll let you know the second it's ready.</p>
 
-<section style="padding-top:0;">
-  <div class="wrap grid-2" style="align-items:start;">
-    <div>
-      <div class="card" style="margin-bottom:24px;">
-        <p class="eyebrow" style="margin-bottom:16px;">Reach us directly</p>
-        <p style="margin-bottom:10px;">Email: <a href="mailto:hello@cafeish.com" style="color:var(--gold);" id="contact-email">hello@cafeish.com</a></p>
-        <p style="margin-bottom:10px;">Phone: <span id="contact-phone">(314) 555-0142</span></p>
-        <p>Instagram: <span id="contact-ig">@cafeish</span></p>
-      </div>
-      <div class="card">
-        <p class="eyebrow" style="margin-bottom:12px;">Catering &amp; pop-ups</p>
-        <p class="muted" id="contact-note" style="font-size:14px;">For catering and pop-up bookings, tell us your date, headcount, and location.</p>
-      </div>
-    </div>
+    <form id="notify-form" style="display:flex; gap:12px; max-width:420px; margin:0 auto; flex-wrap:wrap; justify-content:center;">
+      <input type="email" id="notify-email" required placeholder="you@email.com" style="flex:1; min-width:220px;">
+      <button type="submit" class="btn btn-primary">Notify me</button>
+    </form>
 
-    <div class="card">
-      <p class="eyebrow" style="margin-bottom:20px;">Send a request</p>
-      <form id="order-form">
-        <div class="form-row">
-          <label for="o-name">Name</label>
-          <input type="text" id="o-name" required placeholder="Your name">
-        </div>
-        <div class="form-row">
-          <label for="o-email">Email</label>
-          <input type="email" id="o-email" required placeholder="you@email.com">
-        </div>
-        <div class="form-row">
-          <label for="o-phone">Phone (optional)</label>
-          <input type="tel" id="o-phone" placeholder="(314) 555-0000">
-        </div>
-        <div class="form-row">
-          <label for="o-type">What's this about?</label>
-          <select id="o-type">
-            <option value="order">Placing an order</option>
-            <option value="catering">Catering request</option>
-            <option value="popup">Pop-up question</option>
-            <option value="other">Something else</option>
-          </select>
-        </div>
-        <div class="form-row">
-          <label for="o-details">Details</label>
-          <textarea id="o-details" rows="4" required placeholder="Date, headcount, location, or what you're craving..."></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Send request</button>
-      </form>
-    </div>
+    <p class="muted" style="font-size:13px; margin-top:24px;">Need catering or have a question in the meantime? <a href="catering.html" style="color:var(--gold);">Visit our catering page →</a></p>
   </div>
 </section>
 
 <footer class="site-footer">
   <div class="wrap">
     <div class="footer-grid">
-      <div class="footer-col"><h4>Cafeish</h4><p>Pop-ups &amp; catering across St. Louis.</p></div>
+      <div class="footer-col"><h4>Cafeish</h4><p data-edit-key="footer-tagline">Pop-ups &amp; catering across St. Louis.</p></div>
       <div class="footer-col"><h4>Explore</h4>
-        <a href="menu.html">Menu</a><a href="about.html">About</a><a href="journal.html">Journal</a><a href="waitlist.html">Early access</a>
+        <a href="menu.html">Menu</a><a href="catering.html">Catering</a><a href="about.html">About</a><a href="journal.html">Journal</a><a href="waitlist.html">Early access</a>
       </div>
       <div class="footer-col"><h4>Connect</h4>
-        <a href="order.html">Order &amp; contact</a><a href="reviews.html">Reviews</a>
+        <a href="order.html">Order</a><a href="reviews.html">Reviews</a>
       </div>
     </div>
     <hr class="rule">
-    <p class="footer-bottom" style="margin-top:24px;">© 2026 Cafeish. St. Louis, MO.</p>
+    <p class="footer-bottom" style="margin-top:24px;" data-edit-key="footer-copyright">© 2026 Cafeish. St. Louis, MO.</p>
   </div>
 </footer>
 
-<script src="js/site-config.js"></script>
 <script src="js/data.js"></script>
 <script src="js/main.js"></script>
 <script src="js/inline-edit.js"></script>
 <script>
-  // Pull contact info from data.js so it's editable in one place
-  document.getElementById('contact-email').textContent = CONTACT_INFO.email;
-  document.getElementById('contact-email').href = 'mailto:' + CONTACT_INFO.email;
-  document.getElementById('contact-phone').textContent = CONTACT_INFO.phone;
-  document.getElementById('contact-ig').textContent = CONTACT_INFO.instagram;
-  document.getElementById('contact-note').textContent = CONTACT_INFO.cateringNote;
-
-  document.getElementById('order-form').addEventListener('submit', async function (e) {
+  document.getElementById('notify-form').addEventListener('submit', async function (e) {
     e.preventDefault();
-    const order = {
-      name: document.getElementById('o-name').value,
-      email: document.getElementById('o-email').value,
-      phone: document.getElementById('o-phone').value,
-      type: document.getElementById('o-type').value,
-      details: document.getElementById('o-details').value
-    };
-    addCateringInquiry(order);
-    const emailed = await submitToInbox(`Cafeish request: ${order.type}`, {
-      name: order.name, email: order.email, phone: order.phone, Type: order.type, Details: order.details
-    });
-
-    if (emailed) {
-      showToast('Request sent — we\'ll be in touch.');
-      this.reset();
-    } else {
-      // Email notifications aren't configured yet — fall back to opening the visitor's own email client
-      const subject = encodeURIComponent(`Cafeish request: ${order.type}`);
-      const body = encodeURIComponent(`Name: ${order.name}\nEmail: ${order.email}\nPhone: ${order.phone}\n\n${order.details}`);
-      showToast('Opening your email to send this...');
-      setTimeout(() => {
-        window.location.href = `mailto:${CONTACT_INFO.email}?subject=${subject}&body=${body}`;
-      }, 900);
-      this.reset();
-    }
+    const email = document.getElementById('notify-email').value;
+    addNotifyMe({ email });
+    await submitToInbox('New Cafeish "notify me" signup (ordering)', { email: email });
+    showToast("You're on the list — we'll email you the moment ordering opens.");
+    this.reset();
   });
 </script>
 </body>

@@ -51,6 +51,7 @@ const STORE_KEYS = {
   waitlist: 'cafeish_waitlist',
   team: 'cafeish_team',
   theme: 'cafeish_theme',
+  journal: 'cafeish_journal',
   pageEdits: 'cafeish_page_edits'
 };
 
@@ -250,6 +251,38 @@ function uploadImage(file) {
   });
 }
 
+// ---------- JOURNAL POSTS ----------
+function getJournalPosts() {
+  let posts = loadJSON(STORE_KEYS.journal, null);
+  if (posts === null) {
+    const base = typeof JOURNAL_POSTS !== 'undefined' ? JOURNAL_POSTS : [];
+    posts = base.map((p, i) => ({ ...p, id: p.id || ('seedpost_' + i) }));
+    saveJSON(STORE_KEYS.journal, posts);
+  }
+  return posts;
+}
+
+function addJournalPost(post) {
+  const posts = getJournalPosts();
+  posts.push({ ...post, id: 'post_' + Date.now() });
+  saveJSON(STORE_KEYS.journal, posts);
+}
+
+function updateJournalPost(id, changes) {
+  const posts = getJournalPosts();
+  const idx = posts.findIndex(p => p.id === id);
+  if (idx > -1) {
+    posts[idx] = { ...posts[idx], ...changes };
+    saveJSON(STORE_KEYS.journal, posts);
+  }
+}
+
+function deleteJournalPost(id) {
+  let posts = getJournalPosts();
+  posts = posts.filter(p => p.id !== id);
+  saveJSON(STORE_KEYS.journal, posts);
+}
+
 // ---------- EMAIL NOTIFICATIONS ----------
 // Sends a form submission straight to the team's inbox (see site-config.js).
 // Runs alongside the local save above — local save is just a same-browser
@@ -330,4 +363,18 @@ function applyPageEdits() {
     const key = el.dataset.editImgKey;
     if (edits[key] !== undefined) el.src = edits[key];
   });
+  // Auto-detected elements (anything not explicitly marked, on any page,
+  // including pages added later) — see inline-edit.js for the detection
+  // rules. Only touches elements that actually have a saved edit.
+  if (typeof getAutoEditKey === 'function') {
+    document.querySelectorAll('body *').forEach(el => {
+      if (typeof isAutoEditableText === 'function' && isAutoEditableText(el)) {
+        const key = getAutoEditKey(el);
+        if (edits[key] !== undefined) el.textContent = edits[key];
+      } else if (el.tagName === 'IMG' && typeof isAutoEditableImage === 'function' && isAutoEditableImage(el)) {
+        const key = getAutoEditKey(el);
+        if (edits[key] !== undefined) el.src = edits[key];
+      }
+    });
+  }
 }
