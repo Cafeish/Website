@@ -40,9 +40,8 @@ Go to `/admin.html` (not linked in the nav). Default password is `cafeish2026` �
 `js/site-config.js` before sharing it with the rest of the team.
 
 ## Need from Aisha
-- Full menu list + prices (placeholder items are in `js/data.js` now — add real ones via `/admin.html`, or edit `DEFAULT_MENU_ITEMS` directly)
-- Team photos + bios (placeholder team members are in `js/data.js` now)
-- Final logo PNG — swap into the `.logo-mark` element in each page's `<nav>` (currently text placeholder)
+- Full menu list + prices 
+- Team photos + bios 
 
 ## Getting a live URL (free, no setup) — GitHub Pages
 Once this is pushed to GitHub (see below), you can get a real `https://` URL for free in about
