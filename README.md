@@ -36,7 +36,7 @@ menu items from their own laptop and it showing up for customers), that's a well
 connecting a database — for later. Not something to worry about right now.
 
 ## Admin access
-Go to `/admin.html` (not linked in the nav). Default password is `cafeish2026` — change it in
+Go to `/admin.html` (not linked in the nav). Default password is `xxx` — change it in
 `js/site-config.js` before sharing it with the rest of the team.
 
 ## Need from Aisha
