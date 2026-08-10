@@ -6,7 +6,7 @@
    with your team. This is basic — not real security — it just
    keeps casual visitors out.
    ========================================================= */
-const ADMIN_PASSWORD = "cafeish2026";
+const ADMIN_PASSWORD = "#7CafeishByAisha";
 
 /* =========================================================
    EMAIL NOTIFICATIONS (Web3Forms — free, no card, no account)
