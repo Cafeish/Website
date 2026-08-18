@@ -52,3 +52,4 @@ Once this is pushed to GitHub (see below), you can get a real `https://` URL for
 4. Wait ~1 minute, refresh the page — GitHub gives you a URL like `https://your-username.github.io/cafeish-website/`
 
 That's your live site.
+Your site is live at https://cafeishh.com/
