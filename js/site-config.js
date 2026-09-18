@@ -24,5 +24,5 @@ const ADMIN_PASSWORD = "#7CafeishByAisha";
    Until this is filled in, forms still save locally (same as
    before) but nothing gets emailed to the team.
    ========================================================= */
-const WEB3FORMS_ACCESS_KEY = "YOUR_ACCESS_KEY";
+const WEB3FORMS_ACCESS_KEY = "b70c3a35-2b74-4576-96fe-fc753722ef7e";
 const NOTIFY_EMAIL = "cafeish.team@gmail.com";
