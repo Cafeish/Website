@@ -7,14 +7,20 @@
 // ---- MENU ITEMS ----
 // category must be one of: "Drinks", "Bakes", "Food", "Cakes"
 const DEFAULT_MENU_ITEMS = [
-  { id: "m1", name: "Karak Chai", category: "Drinks", price: 4.5, desc: "Slow-spiced black tea, condensed milk, cardamom.", img: "" },
-  { id: "m2", name: "Saffron Cardamom Latte", category: "Drinks", price: 5.5, desc: "Espresso, steamed milk, saffron threads.", img: "" },
-  { id: "m3", name: "Cardamom Bun", category: "Bakes", price: 4.0, desc: "Laminated dough, cardamom sugar crust.", img: "" },
-  { id: "m4", name: "Date & Walnut Loaf", category: "Bakes", price: 5.0, desc: "Medjool date crumb, toasted walnut.", img: "" },
-  { id: "m5", name: "Shakshuka", category: "Food", price: 12.0, desc: "Simmered tomato, baked eggs, warm flatbread.", img: "" },
-  { id: "m6", name: "Lamb Biryani Bowl", category: "Food", price: 14.0, desc: "Basmati, slow-braised lamb, fried onion, herb yogurt.", img: "" },
-  { id: "m7", name: "Pistachio Rose Cake", category: "Cakes", price: 6.5, desc: "Pistachio sponge, rosewater cream, crushed pistachio.", img: "" },
-  { id: "m8", name: "Basbousa", category: "Cakes", price: 5.0, desc: "Semolina cake soaked in orange blossom syrup.", img: "" }
+  { id: "m1", name: "Pakistani Homemade Biryani", category: "Food", price: 0.00, desc: "Served with raita.", img: "" },
+  { id: "m2", name: "Lachha Paratha Rolls (Chicken Tikka)", category: "Food", price: 0.00, desc: "Served with green chutney.", img: "" },
+  { id: "m3", name: "Lachha Paratha Roll (Vegetarian, Spicy Aloo)", category: "Food", price: 0.00, desc: "Mixed spicy aloo filling, served with green chutney.", img: "" },
+  { id: "m4", name: "Crispy Cheese Naan", category: "Food", price: 0.00, desc: "Naan dough, griddle-cooked paratha-style, stuffed with cheese.", img: "" },
+  { id: "m5", name: "Mango Float Matcha Latte", category: "Drinks", price: 0.00, desc: "", img: "" },
+  { id: "m6", name: "Karak Chai", category: "Drinks", price: 0.00, desc: "", img: "" },
+  { id: "m7", name: "Karak Rose Chai", category: "Drinks", price: 0.00, desc: "", img: "" },
+  { id: "m8", name: "Dalgona Coffee", category: "Drinks", price: 0.00, desc: "", img: "" },
+  { id: "m9", name: "Brown Butter Chocolate Chip Cookies", category: "Bakes", price: 0.00, desc: "", img: "" },
+  { id: "m10", name: "Brown Butter Biscoff Cookies", category: "Bakes", price: 0.00, desc: "", img: "" },
+  { id: "m11", name: "Scoopable Cookies", category: "Bakes", price: 0.00, desc: "", img: "" },
+  { id: "m12", name: "Lemon Blueberry Cake", category: "Cakes", price: 0.00, desc: "With lemon cream cheese icing.", img: "" },
+  { id: "m13", name: "Chocolate Cake", category: "Cakes", price: 0.00, desc: "With chocolate cream cheese icing.", img: "" },
+  { id: "m14", name: "Basque Cheesecake", category: "Cakes", price: 0.00, desc: "", img: "" }
 ];
 
 // ---- TEAM MEMBERS ----
