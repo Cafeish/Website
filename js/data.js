@@ -79,7 +79,7 @@ const DEFAULT_THEME = {
   muted: "#C9B99A",
   gold: "#C9974A",
   font: "Comfortaa",
-  logo: "images/logo.png"
+  logo: "images/logo-nav.png"
 };
 
 // Curated so every option stays readable on a dark background.
